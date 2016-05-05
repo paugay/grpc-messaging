@@ -8,7 +8,13 @@ It's based in a domain layer, the specific RPC layer and a simple repository whe
 Overview
 ---
 
-DOMAIN --> map(domainObject) : rpcObject --> RPC LAYER --> unmap(rpcObject) : domainObject --> REPOSITORY LAYER
+High level overview of the arch. is the following (from top to bottom):
+
+- DOMAIN LAYER
+- `map(domainObject) : rpcObject `
+- RPC LAYER
+- `unmap(rpcObject) : domainObject `
+- REPOSITORY LAYER
 
 Setup
 ---
