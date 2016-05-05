@@ -1,43 +1,48 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "com.schibsted.messaging.grpc";
+option java_package = "com.schibsted.messaging.server.grpc";
 option java_outer_classname = "MessagingProto";
 
-service MessageRepository {
-  rpc get(InternalMessageId) returns (InternalMessage) {}
-  rpc save(InternalMessage) returns (InternalMessageId) {}
+service MessageRepositoryProto {
+  rpc getMessageList(Empty) returns (stream InternalMessageProto) {}
+  rpc getMessage(InternalMessageIdProto) returns (InternalMessageProto) {}
+  rpc createMessage(InternalMessageProto) returns (InternalMessageProto) {}
+  rpc updateMessage(InternalMessageProto) returns (InternalMessageProto) {}
+  rpc deleteMessage(InternalMessageIdProto) returns (InternalMessageProto) {}
 }
 
-message InternalMessage {
-  InternalMessageId id = 1;
-  User userFrom = 2;
-  User userTo = 3;
-  Item item = 4;
-  Content content = 5;
-  int32 timestamp = 6;
+message Empty {}
+
+message InternalMessageProto {
+  InternalMessageIdProto internalMessageId = 1;
+  UserProto userFrom = 2;
+  UserProto userTo = 3;
+  ItemProto item = 4;
+  ContentProto content = 5;
+  int64 timestamp = 6;
 }
 
-message InternalMessageId {
+message InternalMessageIdProto {
   string id = 1;
 }
 
-message User {
-  UserId id = 1;
+message UserProto {
+  UserIdProto userId = 1;
   string name = 2;
   string email = 3;
 }
 
-message UserId {
+message UserIdProto {
   string id = 1;
 }
 
-message Item {
+message ItemProto {
   string type = 1;
   string id = 2;
 }
 
-message Content {
+message ContentProto {
   string title = 1;
   string body = 2;
 }

@@ -1,29 +1,37 @@
-package com.schibsted.messaging.grpc;
+package com.schibsted.messaging.server.grpc;
 
+import com.schibsted.messaging.domain.services.HashMapMessageRepository;
+import com.schibsted.messaging.domain.services.MessageRepository;
 import io.grpc.ServerBuilder;
 
 import java.util.logging.Logger;
 
-public class MessageRepositoryServer {
-    private static final Logger logger = Logger.getLogger(MessageRepositoryServer.class.getName());
+public class GrpcServer {
+    private static final Logger logger = Logger.getLogger(GrpcServer.class.getName());
+
+    private final MessageRepository messageRepository;
 
     private int port = 50051;
     private io.grpc.Server server;
 
+    public GrpcServer(MessageRepository messageRepository) {
+        this.messageRepository = messageRepository;
+    }
+
     private void start() throws Exception {
         server = ServerBuilder.forPort(port)
-                .addService(MessageRepositoryGrpc.bindService(new MessageRepositoryServerImpl()))
+                .addService(MessageRepositoryProtoGrpc.bindService(new GrpcServerImpl(messageRepository)))
                 .build()
                 .start();
 
-        logger.info("MessageRepositoryServer started, listening on " + port);
+        logger.info("GrpcServer started, listening on " + port);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
                 // use stderr here since the logger may have been reset by its JVM shutdown hook
                 System.err.println("*** shutting down gRPC server since JVM is shutting down");
-                MessageRepositoryServer.this.stop();
+                GrpcServer.this.stop();
                 System.err.println("*** server shut down");
             }
         });
@@ -42,7 +50,9 @@ public class MessageRepositoryServer {
     }
 
     public static void main(String[] args) throws Exception {
-        final MessageRepositoryServer server = new MessageRepositoryServer();
+        final MessageRepository messageRepository = new HashMapMessageRepository();
+        final GrpcServer server = new GrpcServer(messageRepository);
+
         server.start();
         server.blockUntilShutdown();
     }
